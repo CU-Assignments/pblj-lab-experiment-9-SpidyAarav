@@ -1,0 +1,281 @@
+code 1 :
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationContext;
+import
+org.springframework.context.annotation.AnnotationConfigApplicationContext;
+public class Course {
+ private String courseName;
+ private int duration;
+ public Course(String courseName, int duration) {
+this.courseName = courseName;
+ this.duration = duration;
+ }
+ public String getCourseName() {
+ return courseName;
+ }
+ public int getDuration() {
+ return duration;
+ }
+}
+public class Student {
+ private String name;
+ private Course course;
+ public Student(String name, Course course) {
+ this.name = name;
+ this.course = course;
+ }
+ public void displayDetails() {
+ System.out.println("Student Name: " + name);
+System.out.println("Course: " + course.getCourseName() + ", Duration: " +
+course.getDuration() + " months");
+ }
+}
+@Configuration
+public class AppConfig {
+
+ @Bean
+ public Course course() {
+ return new Course("Java Development", 6);
+ }
+ @Bean
+ public Student student() {
+ return new Student("Aarushi", course());
+ }
+}
+public class MainApp {
+ public static void main(String[] args) {
+ ApplicationContext context = new
+AnnotationConfigApplicationContext(AppConfig.class);
+ Student student = context.getBean(Student.class);
+ student.displayDetails();
+ }
+}
+code 2 :
+import javax.persistence.*;
+import org.hibernate.*;
+import org.hibernate.cfg.Configuration;
+@Entity
+@Table(name = "students")
+public class Student {
+@Id
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private int id;
+ private String name;
+ private int age;
+ // Constructors
+ public Student() {}
+ public Student(String name, int age) {
+ this.name = name;
+ this.age = age;
+ }
+ // Getters & Setters
+ public int getId() { return id; }
+ public String getName() { return name; }
+ public void setName(String name) { this.name = name; }
+ public int getAge() { return age; }
+ public void setAge(int age) { this.age = age; }
+ // Main method for CRUD operations
+ public static void main(String[] args) {
+ // Configure SessionFactory
+ SessionFactory factory = new Configuration()
+configure("hibernate.cfg.xml")
+ .addAnnotatedClass(Student.class)
+ .buildSessionFactory();
+ // Create
+ Session session = factory.openSession();
+ Transaction tx = session.beginTransaction();
+ Student s1 = new Student("Aarushi", 21);
+ session.save(s1);
+ tx.commit();
+ System.out.println("Student saved: " + s1.getName());
+ // Read
+ session = factory.openSession();
+ Student fetched = session.get(Student.class, s1.getId());
+ System.out.println("Fetched Student: " + fetched.getName() + ", Age: " +
+fetched.getAge());
+ // Update
+ tx = session.beginTransaction();
+ fetched.setAge(22);
+ session.update(fetched);
+ tx.commit();
+ System.out.println("Updated Age to: " + fetched.getAge());
+// Delete
+ tx = session.beginTransaction();
+ session.delete(fetched);
+ tx.commit();
+ System.out.println("Deleted Student with ID: " + fetched.getId());
+ session.close();
+ factory.close();
+ }
+}
+HIBERNATE CRUD
+import javax.persistence.*;
+import org.hibernate.*;
+import org.hibernate.cfg.Configuration;
+@Entity
+@Table(name = "students")
+public class Student {
+ @Id
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private int id;
+ private String name;
+ private int age;
+ // Constructors
+public Student() {}
+ public Student(String name, int age) {
+ this.name = name;
+ this.age = age;
+ }
+ // Getters & Setters
+ public int getId() { return id; }
+ public String getName() { return name; }
+ public void setName(String name) { this.name = name; }
+ public int getAge() { return age; }
+ public void setAge(int age) { this.age = age; }
+ // Main method for CRUD operations
+ public static void main(String[] args) {
+ // Configure SessionFactory
+ SessionFactory factory = new Configuration()
+ .configure("hibernate.cfg.xml")
+ .addAnnotatedClass(Student.class)
+ .buildSessionFactory();
+ // Create
+ Session session = factory.openSession();
+ Transaction tx = session.beginTransaction();
+ Student s1 = new Student("Aarushi", 21);
+ session.save(s1);
+ tx.commit();
+System.out.println("Student saved: " + s1.getName());
+ // Read
+ session = factory.openSession();
+ Student fetched = session.get(Student.class, s1.getId());
+ System.out.println("Fetched Student: " + fetched.getName() + ", Age: " +
+fetched.getAge());
+ // Update
+ tx = session.beginTransaction();
+ fetched.setAge(22);
+ session.update(fetched);
+ tx.commit();
+ System.out.println("Updated Age to: " + fetched.getAge());
+ // Delete
+ tx = session.beginTransaction();
+ session.delete(fetched);
+ tx.commit();
+ System.out.println("Deleted Student with ID: " + fetched.getId());
+ session.close();
+ factory.close();
+ }
+}
+code :
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import javax.persistence.*;
+import java.util.Date;
+// Entity: Account
+@Entity
+class Account {
+ @Id
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private int id;
+ private String holderName;
+ private double balance;
+ public Account() {}
+ public Account(String holderName, double balance) {
+ this.holderName = holderName;
+ this.balance = balance;
+ }
+ // Getters and Setters
+ public int getId() { return id; }
+ public String getHolderName() { return holderName; }
+ public void setHolderName(String holderName) { this.holderName =
+holderName; }
+ public double getBalance() { return balance; }
+ public void setBalance(double balance) { this.balance = balance; }
+}
+// Entity: Transaction Record
+@Entity
+class TransactionRecord {
+ @Id
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private int id;
+ private int fromAccount;
+ private int toAccount;
+ private double amount;
+ private Date transactionDate;
+ public TransactionRecord() {}
+ public TransactionRecord(int from, int to, double amount) {
+ this.fromAccount = from;
+ this.toAccount = to;
+ this.amount = amount;
+ this.transactionDate = new Date();
+ }
+ // Getters
+ public int getId() { return id; }
+ public int getFromAccount() { return fromAccount; }
+public int getToAccount() { return toAccount; }
+ public double getAmount() { return amount; }
+ public Date getTransactionDate() { return transactionDate; }
+}
+// Main App with Configuration and Service
+public class BankingApp {
+ private static SessionFactory sessionFactory;
+ public static void main(String[] args) {
+ try {
+ // Configure Hibernate
+ Configuration cfg = new Configuration().configure("hibernate.cfg.xml")
+ .addAnnotatedClass(Account.class)
+ .addAnnotatedClass(TransactionRecord.class);
+ sessionFactory = cfg.buildSessionFactory();
+ // Add test data (Optional, only once)
+ //createDummyAccounts();
+ // Perform a money transfer
+ transferMoney(1, 2, 500)
+} catch (Exception e) {
+ e.printStackTrace();
+ } finally {
+ sessionFactory.close();
+ }
+ }
+ public static void transferMoney(int fromId, int toId, double amount) {
+ Session session = sessionFactory.openSession();
+ Transaction tx = null;
+ try {
+ tx = session.beginTransaction();
+ Account from = session.get(Account.class, fromId);
+ Account to = session.get(Account.class, toId);
+ if (from == null || to == null) {
+ throw new RuntimeException("Account not found.");
+ }
+ if (from.getBalance() < amount) {
+ throw new RuntimeException("Insufficient funds.");
+ }
+from.setBalance(from.getBalance() - amount);
+ to.setBalance(to.getBalance() + amount);
+ session.update(from);
+ session.update(to);
+ TransactionRecord txn = new TransactionRecord(fromId, toId, amount);
+ session.save(txn);
+ tx.commit();
+ System.out.println("Transaction Successful.");
+ } catch (Exception e) {
+ if (tx != null) tx.rollback();
+ System.out.println("Transaction Failed. Rolled back. Reason: " +
+e.getMessage());
+ } finally {
+ session.close();
+ }
+ }
+ // Optional method to add initial accounts
+ public static void createDummyAccounts() {
+ Session session = sessionFactory.openSession();
+Transaction tx = session.beginTransaction();
+ session.save(new Account("Aarushi", 1000));
+ session.save(new Account("Riya", 1000));
+ tx.commit();
+ session.close();
+ System.out.println("Dummy accounts created.");
+ }
+}
